@@ -24,7 +24,8 @@
                 </div>
               </div>
               <div style="padding-top: 55px"></div>
-              <div class="ddddccc" v-if="false">
+              <!--  -->
+              <div class="ddddccc" v-if="userStore.token == ''">
                 <div><p>登录后，精彩更多</p></div>
                 <div>
                   <n-button
@@ -60,6 +61,10 @@ import { Moon, Sunny } from "@vicons/ionicons5";
 const active = ref(false);
 import Menu from "../layout/compoents/menu/index.vue";
 import Tag from "../layout/compoents/tag/index.vue";
+
+//存放用户数据 store
+import useUserStore from "../../store/user";
+let userStore = useUserStore();
 </script>
 <style>
 * {

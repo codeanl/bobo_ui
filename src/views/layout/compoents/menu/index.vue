@@ -9,7 +9,7 @@
       <n-menu v-model:value="selectedKeyRef" :options="options" />
     </div>
     <!--  -->
-    <div class="myInfo" v-if="false">
+    <div class="myInfo" v-if="userStore.token == ''">
       <div style="display: flex; align-items: center">
         <n-button
           strong
@@ -51,15 +51,17 @@
           pane-style="padding-left: 4px; padding-right: 4px; box-sizing: border-box;"
         >
           <n-tab-pane name="signin" tab="登录">
-            <n-form>
+            <n-form :model:value="loginForm">
               <n-form-item-row label="用户名">
-                <n-input />
+                <n-input v-model:value="loginForm.username" />
               </n-form-item-row>
               <n-form-item-row label="密码">
-                <n-input />
+                <n-input v-model:value="loginForm.password" />
               </n-form-item-row>
             </n-form>
-            <n-button type="primary" block secondary strong> 登录 </n-button>
+            <n-button type="primary" block secondary strong @click="login">
+              登录
+            </n-button>
           </n-tab-pane>
           <n-tab-pane name="signup" tab="注册">
             <n-form>
@@ -73,13 +75,15 @@
                 <n-input />
               </n-form-item-row>
             </n-form>
-            <n-button type="primary" block secondary strong> 注册 </n-button>
+            <n-button type="primary" block secondary strong @click="rigester">
+              注册
+            </n-button>
           </n-tab-pane>
         </n-tabs>
       </n-card>
     </n-modal>
     <!--  -->
-    <div class="myInfo" v-if="true">
+    <div class="myInfo" v-if="userStore.token != ''">
       <div style="display: flex; align-items: center">
         <n-avatar
           round
@@ -87,11 +91,11 @@
           src="https://assets.paopao.info/public/avatar/default/anna.png"
         />
       </div>
-      <div style="margin: 3px; width: 100px">
-        <p style="font-size: 13px">柳州第一深情呵</p>
-        <p style="font-size: 13px">@Codeanlan</p>
+      <div style="margin: 3px">
+        <p style="font-size: 14px">{{ userStore.nickname }}</p>
+        <p style="font-size: 13px">@{{ userStore.username }}</p>
       </div>
-      <div style="margin-top: 3px" @click="logout">
+      <div style="margin: 5px 0 0 5px" @click="logout">
         <n-icon>
           <MdExit />
         </n-icon>
@@ -103,7 +107,7 @@
 <script setup lang="ts">
 import { MdExit } from "@vicons/ionicons4";
 import { NIcon } from "naive-ui";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, reactive } from "vue";
 import { RouterLink } from "vue-router";
 import { Component, h } from "vue";
 function renderIcon(icon: Component) {
@@ -125,8 +129,11 @@ onMounted(() => {
     selectedKeyRef.value = "文章";
   }
 });
+//存放用户数据 store
+import useUserStore from "../../../../store/user";
+let userStore = useUserStore();
 
-const options = [
+const options = ref([
   {
     label: () =>
       h(
@@ -168,6 +175,7 @@ const options = [
       ),
     key: "设置",
     icon: renderIcon(PersonIcon),
+    show: userStore.token != "",
   },
   {
     label: () =>
@@ -182,9 +190,9 @@ const options = [
       ),
     key: "主页",
     icon: renderIcon(PersonIcon),
+    show: userStore.token != "",
   },
-];
-
+]);
 const showModal = ref(false);
 
 import { useMessage, useDialog } from "naive-ui";
@@ -197,12 +205,33 @@ const logout = () => {
     positiveText: "确定",
     negativeText: "取消",
     onPositiveClick: () => {
-      message.success("确定");
+      message.success("退出登录成功");
+      userStore.userLogout();
+      window.location.reload();
     },
-    onNegativeClick: () => {
-      message.error("取消");
-    },
+    onNegativeClick: () => {},
   });
+};
+//表单数据
+let loginForm = reactive({
+  username: "codeanl",
+  password: "123456",
+});
+
+//登录按钮
+const login = async () => {
+  let msg: any = await userStore.userLogin(loginForm);
+  if (msg == "OK") {
+    message.success(msg);
+    showModal.value = false;
+    window.location.reload();
+  } else {
+    message.error(msg);
+  }
+};
+
+const rigester = () => {
+  console.log(userStore.nickname);
 };
 </script>
 
@@ -224,13 +253,12 @@ const logout = () => {
   }
 }
 .myInfo {
-  padding: 0 10px;
+  padding: 0 15px;
   height: 45px;
   width: 100%;
   position: absolute;
   bottom: 10px;
   display: flex;
-  justify-content: space-between;
   .btnbtn {
     margin: 0 5px;
   }

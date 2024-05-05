@@ -24,7 +24,7 @@
   <!--  -->
   <div class="ntags">
     <n-tabs type="line" animated>
-      <n-tab-pane name="图文" tab="图文"> <Test></Test> </n-tab-pane>
+      <n-tab-pane name="图文" tab="图文"> 111 </n-tab-pane>
       <n-tab-pane name="文章" tab="文章"> Hey Jude </n-tab-pane>
       <n-tab-pane name="喜欢" tab="喜欢"> 七里香 </n-tab-pane>
     </n-tabs>
@@ -34,9 +34,7 @@
   </n-list> -->
 </template>
 
-<script setup lang="ts">
-import Test from "../home/index.vue";
-</script>
+<script setup lang="ts"></script>
 
 <style scoped lang="scss">
 .myprofile {
