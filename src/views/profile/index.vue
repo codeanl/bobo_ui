@@ -1,19 +1,31 @@
 <template>
   <div class="myprofile">
     <div class="myavatar">
-      <n-avatar
-        style="width: 100%; height: 100%"
-        src="https://assets.paopao.info/public/avatar/default/anna.png"
-      />
+      <n-avatar style="width: 100%; height: 100%" :src="userStore.avatar" />
     </div>
     <div class="myprofileinfo">
       <div class="myinfoinfo">
-        <p style="font-size: 14px; font-weight: bold">codeanl</p>
-        <p style="font-size: 14px">@codeanl</p>
+        <p style="font-size: 14px; font-weight: bold">
+          {{ userStore.nickname }}
+        </p>
+        <p style="font-size: 14px">@{{ userStore.username }}</p>
       </div>
       <div class="myinfoinfo toccc">
-        <p style="font-size: 13px; color: rgb(65, 64, 64)">UID. 101858</p>
-        <p style="font-size: 13px; color: rgb(65, 64, 64)">2023年03月 加入</p>
+        <p style="font-size: 13px; color: rgb(65, 64, 64)">
+          UID.{{ userStore.uuid }}
+        </p>
+        <p style="font-size: 13px; color: rgb(65, 64, 64)">
+          {{
+            userStore.created_at.substring(
+              0,
+              userStore.created_at.indexOf(
+                "-",
+                userStore.created_at.indexOf("-") + 1
+              )
+            )
+          }}
+          加入
+        </p>
       </div>
       <div class="myinfoinfo">
         <p style="font-size: 13px; color: rgb(65, 64, 64)">关注 0</p>
@@ -34,7 +46,11 @@
   </n-list> -->
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+//存放用户数据 store
+import useUserStore from "../../store/user";
+let userStore = useUserStore();
+</script>
 
 <style scoped lang="scss">
 .myprofile {

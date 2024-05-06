@@ -17,7 +17,7 @@
           round
           type="primary"
           class="btnbtn"
-          @click="showModal = true"
+          @click="toLogin"
         >
           登录
         </n-button>
@@ -27,7 +27,7 @@
           round
           type="info"
           class="btnbtn"
-          @click="showModal = true"
+          @click="toRegister"
         >
           注册
         </n-button>
@@ -44,13 +44,13 @@
       >
         <n-tabs
           class="card-tabs"
-          default-value="signin"
+          :default-value="tabName"
           size="large"
           animated
           pane-wrapper-style="margin: 0 -4px"
           pane-style="padding-left: 4px; padding-right: 4px; box-sizing: border-box;"
         >
-          <n-tab-pane name="signin" tab="登录">
+          <n-tab-pane name="login" tab="登录">
             <n-form :model:value="loginForm">
               <n-form-item-row label="用户名">
                 <n-input v-model:value="loginForm.username" />
@@ -63,16 +63,16 @@
               登录
             </n-button>
           </n-tab-pane>
-          <n-tab-pane name="signup" tab="注册">
-            <n-form>
+          <n-tab-pane name="register" tab="注册">
+            <n-form :model:value="registerForm">
               <n-form-item-row label="用户名">
-                <n-input />
+                <n-input v-model:value="registerForm.username" />
               </n-form-item-row>
               <n-form-item-row label="密码">
-                <n-input />
+                <n-input v-model:value="registerForm.password" />
               </n-form-item-row>
               <n-form-item-row label="重复密码">
-                <n-input />
+                <n-input v-model:value="registerForm.confirm_password" />
               </n-form-item-row>
             </n-form>
             <n-button type="primary" block secondary strong @click="rigester">
@@ -85,14 +85,12 @@
     <!--  -->
     <div class="myInfo" v-if="userStore.token != ''">
       <div style="display: flex; align-items: center">
-        <n-avatar
-          round
-          size="medium"
-          src="https://assets.paopao.info/public/avatar/default/anna.png"
-        />
+        <n-avatar round size="medium" :src="userStore.avatar" />
       </div>
-      <div style="margin: 3px">
-        <p style="font-size: 14px">{{ userStore.nickname }}</p>
+      <div style="margin: 3px" class="myname">
+        <p style="font-size: 13px">
+          {{ userStore.nickname }}
+        </p>
         <p style="font-size: 13px">@{{ userStore.username }}</p>
       </div>
       <div style="margin: 5px 0 0 5px" @click="logout">
@@ -113,11 +111,12 @@ import { Component, h } from "vue";
 function renderIcon(icon: Component) {
   return () => h(NIcon, null, { default: () => h(icon) });
 }
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { PersonOutline as PersonIcon } from "@vicons/ionicons5";
 const selectedKeyRef = ref("广场");
 const route = useRoute();
-
+const router = useRouter();
+const tabName = ref("login");
 onMounted(() => {
   if (route.path === "/home") {
     selectedKeyRef.value = "广场";
@@ -204,10 +203,15 @@ const logout = () => {
     content: "你确定要退出登录吗？",
     positiveText: "确定",
     negativeText: "取消",
-    onPositiveClick: () => {
-      message.success("退出登录成功");
-      userStore.userLogout();
-      window.location.reload();
+    onPositiveClick: async () => {
+      let msg = await userStore.userLogout();
+      if (msg == "OK") {
+        message.success(msg);
+        showModal.value = false;
+        window.location.reload();
+      } else {
+        message.error(msg);
+      }
     },
     onNegativeClick: () => {},
   });
@@ -217,6 +221,14 @@ let loginForm = reactive({
   username: "codeanl",
   password: "123456",
 });
+const toLogin = () => {
+  showModal.value = true;
+  tabName.value = "login";
+};
+const toRegister = () => {
+  showModal.value = true;
+  tabName.value = "register";
+};
 
 //登录按钮
 const login = async () => {
@@ -229,9 +241,21 @@ const login = async () => {
     message.error(msg);
   }
 };
-
-const rigester = () => {
-  console.log(userStore.nickname);
+import { userRegister } from "../../../../api/index";
+//表单数据
+let registerForm = reactive({
+  username: "",
+  password: "",
+  confirm_password: "",
+});
+const rigester = async () => {
+  let res = await userRegister(registerForm);
+  if (res.data.code == 200) {
+    message.success(res.data.message);
+    showModal.value = false;
+  } else {
+    message.error(res.data.message);
+  }
 };
 </script>
 
@@ -259,6 +283,14 @@ const rigester = () => {
   position: absolute;
   bottom: 10px;
   display: flex;
+  .myname {
+    p {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 97%;
+    }
+  }
   .btnbtn {
     margin: 0 5px;
   }

@@ -11,4 +11,6 @@ import pinia from './store'
 app.use(pinia)
 
 app.use(router)
+//引入路由鉴权
+
 app.mount('#app')

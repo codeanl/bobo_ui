@@ -76,7 +76,9 @@ body,
 html {
   height: 100%;
 }
-
+::-webkit-scrollbar {
+  display: none;
+}
 .ddbox {
   position: relative;
   .left-div {
